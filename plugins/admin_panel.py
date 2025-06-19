@@ -1,16 +1,43 @@
 # (c) @RknDeveloperr
 # Rkn Developer 
 # Don't Remove Credit 😔
-# Telegram Channel @RknDeveloper & @Rkn_Bots
+# Telegram Channel @RknDeveloper & @Rkn_Botz
 # Developer @RknDeveloperr
+"""
+Apache License 2.0
+Copyright (c) 2022 @Digital_Botz
 
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Telegram Link : https://t.me/Digital_Botz 
+Repo Link : https://github.com/DigitalBotz/Digital-Rename-Bot
+License Link : https://github.com/DigitalBotz/Digital-Rename-Bot/blob/main/LICENSE
+"""
+
+# extra imports
 from config import Config
 from helper.database import digital_botz
-from helper.utils import get_seconds
-from pyrogram.types import Message
-from pyrogram import Client, filters, Client as Digital_4gbRenameBot
-from pyrogram.errors import FloodWait, InputUserDeactivated, UserIsBlocked, PeerIdInvalid
+from helper.utils import get_seconds, humanbytes
 import os, sys, time, asyncio, logging, datetime, pytz, traceback
+
+# pyrogram imports
+from pyrogram.types import Message
+from pyrogram import Client, filters
+from pyrogram.errors import FloodWait, InputUserDeactivated, UserIsBlocked, PeerIdInvalid
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -18,7 +45,10 @@ logger.setLevel(logging.INFO)
 @Client.on_message(filters.command(["stats", "status"]) & filters.user(Config.ADMIN))
 async def get_stats(bot, message):
     total_users = await digital_botz.total_users_count()
-    total_premium_users = await digital_botz.total_premium_users_count()
+    if bot.premium:
+        total_premium_users = await digital_botz.total_premium_users_count()
+    else:
+        total_premium_users = "Disabled ✅"
     uptime = time.strftime("%Hh%Mm%Ss", time.gmtime(time.time() - bot.uptime))    
     start_t = time.time()
     rkn = await message.reply('**ᴘʀᴏᴄᴇssɪɴɢ.....**')    
@@ -34,49 +64,103 @@ async def log_file(b, m):
     except Exception as e:
         await m.reply(str(e))
 
-@Digital_4gbRenameBot.on_message(filters.command(["addpremium", "add_premium"]) & filters.user(Config.ADMIN))
+@Client.on_message(filters.command(["addpremium", "add_premium"]) & filters.user(Config.ADMIN))
 async def add_premium(client, message):
-    if len(message.command) == 4:
+    if not client.premium:
+        return await message.reply_text("premium mode disabled ✅")
+     
+    if client.uploadlimit:
+        if len(message.command) < 4:
+            return await message.reply_text("Usage : /addpremium user_id Plan_Type (e.g... `Pro`, `UltraPro`) time (e.g., '1 day for days', '1 hour for hours', or '1 min for minutes', or '1 month for months' or '1 year for year')", quote=True)
+
+        user_id = int(message.command[1])
+        plan_type = message.command[2]
+
+        if plan_type not in ["Pro", "UltraPro"]:
+            return await message.reply_text("Invalid Plan Type. Please use 'Pro' or 'UltraPro'.", quote=True)
+
+        time_string = " ".join(message.command[3:])
+
         time_zone = datetime.datetime.now(pytz.timezone("Asia/Kolkata"))
-        current_time = time_zone.strftime("%d-%m-%Y\n⏱️ ᴊᴏɪɴɪɴɢ ᴛɪᴍᴇ : %I:%M:%S %p") 
-        user_id = int(message.command[1])  # Convert the user_id to integer
+        current_time = time_zone.strftime("%d-%m-%Y\n⏱️ ᴊᴏɪɴɪɴɢ ᴛɪᴍᴇ : %I:%M:%S %p")
+
         user = await client.get_users(user_id)
-        time = message.command[2]+" "+message.command[3]
-        seconds = await get_seconds(time)
-        if seconds > 0:
-            expiry_time = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
-            user_data = {"id": user_id, "expiry_time": expiry_time}  # Using "id" instead of "user_id"  
-            await digital_botz.addpremium(user_id, user_data)
-            data = await digital_botz.get_user(user_id)
-            expiry = data.get("expiry_time")   
-            expiry_str_in_ist = expiry.astimezone(pytz.timezone("Asia/Kolkata")).strftime("%d-%m-%Y\n⏱️ ᴇxᴘɪʀʏ ᴛɪᴍᴇ : %I:%M:%S %p")         
-            await message.reply_text(f"ᴘʀᴇᴍɪᴜᴍ ᴀᴅᴅᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ ✅\n\n👤 ᴜꜱᴇʀ : {user.mention}\n⚡ ᴜꜱᴇʀ ɪᴅ : <code>{user_id}</code>\n⏰ ᴘʀᴇᴍɪᴜᴍ ᴀᴄᴄᴇꜱꜱ : <code>{time}</code>\n\n⏳ ᴊᴏɪɴɪɴɢ ᴅᴀᴛᴇ : {current_time}\n\n⌛️ ᴇxᴘɪʀʏ ᴅᴀᴛᴇ : {expiry_str_in_ist}", disable_web_page_preview=True)
-            await client.send_message(
+
+        if plan_type == "Pro":
+            limit = 107374182400
+            type = "Pro"
+        elif plan_type == "UltraPro":
+            limit = 1073741824000
+            type = "UltraPro"
+
+        seconds = await get_seconds(time_string)
+        if seconds <= 0:
+            return await message.reply_text("Invalid time format. Please use `/addpremium user_id 1 year 1 month 1 day 1 min 10 s`", quote=True)
+
+        expiry_time = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
+        user_data = {"id": user_id, "expiry_time": expiry_time}
+        await digital_botz.addpremium(user_id, user_data, limit, type)
+
+        user_data = await digital_botz.get_user_data(user_id)
+        limit = user_data.get('uploadlimit', 0)
+        type = user_data.get('usertype', "Free")
+        data = await digital_botz.get_user(user_id)
+        expiry = data.get("expiry_time")
+        expiry_str_in_ist = expiry.astimezone(pytz.timezone("Asia/Kolkata")).strftime("%d-%m-%Y\n⏱️ ᴇxᴘɪʀʏ ᴛɪᴍᴇ : %I:%M:%S %p")
+
+        await message.reply_text(f"ᴘʀᴇᴍɪᴜᴍ ᴀᴅᴅᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ ✅\n\n👤 ᴜꜱᴇʀ : {user.mention}\n⚡ ᴜꜱᴇʀ ɪᴅ : <code>{user_id}</code>\nᴘʟᴀɴ :- `{type}`\nᴅᴀɪʟʏ ᴜᴘʟᴏᴀᴅ ʟɪᴍɪᴛ :- `{humanbytes(limit)}`\n⏰ ᴘʀᴇᴍɪᴜᴍ ᴀᴄᴄᴇꜱꜱ : <code>{time_string}</code>\n\n⏳ ᴊᴏɪɴɪɴɢ ᴅᴀᴛᴇ : {current_time}\n\n⌛️ ᴇxᴘɪʀʏ ᴅᴀᴛᴇ : {expiry_str_in_ist}", quote=True, disable_web_page_preview=True)
+
+        await client.send_message(
+                chat_id=user_id,
+                text=f"👋 ʜᴇʏ {user.mention},\nᴛʜᴀɴᴋ ʏᴏᴜ ꜰᴏʀ ᴘᴜʀᴄʜᴀꜱɪɴɢ ᴘʀᴇᴍɪᴜᴍ.\nᴇɴᴊᴏʏ !! ✨🎉\n\n⏰ ᴘʀᴇᴍɪᴜᴍ ᴀᴄᴄᴇꜱꜱ : <code>{time}</code>\nᴘʟᴀɴ :- `{type}`\nᴅᴀɪʟʏ ᴜᴘʟᴏᴀᴅ ʟɪᴍɪᴛ :- `{humanbytes(limit)}`\n⏳ ᴊᴏɪɴɪɴɢ ᴅᴀᴛᴇ : {current_time}\n\n⌛️ ᴇxᴘɪʀʏ ᴅᴀᴛᴇ : {expiry_str_in_ist}", disable_web_page_preview=True              
+            )    
+
+    else:
+        if len(message.command) < 3:
+            return await message.reply_text("Usage : /addpremium user_id time (e.g., '1 day for days', '1 hour for hours', or '1 min for minutes', or '1 month for months' or '1 year for year')", quote=True)
+
+        user_id = int(message.command[1])
+        time_string = " ".join(message.command[2:])
+
+        time_zone = datetime.datetime.now(pytz.timezone("Asia/Kolkata"))
+        current_time = time_zone.strftime("%d-%m-%Y\n⏱️ ᴊᴏɪɴɪɴɢ ᴛɪᴍᴇ : %I:%M:%S %p")
+
+        user = await client.get_users(user_id)        
+        seconds = await get_seconds(time_string)
+        if seconds <= 0:
+            return await message.reply_text("Invalid time format. Please use `/addpremium user_id 1 year 1 month 1 day 1 min 10 s`", quote=True)
+
+        expiry_time = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
+        user_data = {"id": user_id, "expiry_time": expiry_time}
+        await digital_botz.addpremium(user_id, user_data)
+        data = await digital_botz.get_user(user_id)
+        expiry = data.get("expiry_time")
+        expiry_str_in_ist = expiry.astimezone(pytz.timezone("Asia/Kolkata")).strftime("%d-%m-%Y\n⏱️ ᴇxᴘɪʀʏ ᴛɪᴍᴇ : %I:%M:%S %p")
+
+        await message.reply_text(f"ᴘʀᴇᴍɪᴜᴍ ᴀᴅᴅᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ ✅\n\n👤 ᴜꜱᴇʀ : {user.mention}\n⚡ ᴜꜱᴇʀ ɪᴅ : <code>{user_id}</code>\n⏰ ᴘʀᴇᴍɪᴜᴍ ᴀᴄᴄᴇꜱꜱ : <code>{time_string}</code>\n\n⏳ ᴊᴏɪɴɪɴɢ ᴅᴀᴛᴇ : {current_time}\n\n⌛️ ᴇxᴘɪʀʏ ᴅᴀᴛᴇ : {expiry_str_in_ist}", quote=True, disable_web_page_preview=True)
+
+        await client.send_message(
                 chat_id=user_id,
                 text=f"👋 ʜᴇʏ {user.mention},\nᴛʜᴀɴᴋ ʏᴏᴜ ꜰᴏʀ ᴘᴜʀᴄʜᴀꜱɪɴɢ ᴘʀᴇᴍɪᴜᴍ.\nᴇɴᴊᴏʏ !! ✨🎉\n\n⏰ ᴘʀᴇᴍɪᴜᴍ ᴀᴄᴄᴇꜱꜱ : <code>{time}</code>\n⏳ ᴊᴏɪɴɪɴɢ ᴅᴀᴛᴇ : {current_time}\n\n⌛️ ᴇxᴘɪʀʏ ᴅᴀᴛᴇ : {expiry_str_in_ist}", disable_web_page_preview=True              
             )    
-            return 
-        await message.reply_text("Invalid time format. Please use '1 day for days', '1 hour for hours', or '1 min for minutes', or '1 month for months' or '1 year for year'")
-        return
-    await message.reply_text("Usage : /addpremium user_id time (e.g., '1 day for days', '1 hour for hours', or '1 min for minutes', or '1 month for months' or '1 year for year')")
-    return
+     
 
-@Digital_4gbRenameBot.on_message(filters.command(["removepremium", "remove_premium"]) & filters.user(Config.ADMIN))
+@Client.on_message(filters.command(["removepremium", "remove_premium"]) & filters.user(Config.ADMIN))
 async def remove_premium(bot, message):
+    if not bot.premium:
+        return await message.reply_text("premium mode disabled ✅")
+     
     if len(message.command) == 2:
         user_id = int(message.command[1])  # Convert the user_id to integer
         user = await bot.get_users(user_id)
         if await digital_botz.has_premium_access(user_id):
             await digital_botz.remove_premium(user_id)
-            await message.reply_text(f"ᴜsᴇʀ {user.mention}, ᴘʀᴇᴍɪᴜᴍ ᴘʟᴀɴ sᴜᴄᴄᴇssғᴜʟʟʏ ʀᴇᴍᴏᴠᴇᴅ.")
-            await bot.send_message(
-                chat_id=user_id,
-                text=f"<b>ʜᴇʏ {user.mention},\n\n✨ ʏᴏᴜʀ ᴀᴄᴄᴏᴜɴᴛ ʜᴀs ʙᴇᴇɴ ʀᴇᴍᴏᴠᴇᴅ ᴛᴏ ᴏᴜʀ ᴘʀᴇᴍɪᴜᴍ ᴘʟᴀɴ\n\nᴄʜᴇᴄᴋ ʏᴏᴜʀ ᴘʟᴀɴ ʜᴇʀᴇ /myplan</b>"
-            )
+            await message.reply_text(f"ʜᴇʏ {user.mention}, ᴘʀᴇᴍɪᴜᴍ ᴘʟᴀɴ sᴜᴄᴄᴇssғᴜʟʟʏ ʀᴇᴍᴏᴠᴇᴅ.", quote=True)
+            await bot.send_message(chat_id=user_id, text=f"<b>ʜᴇʏ {user.mention},\n\n✨ ʏᴏᴜʀ ᴀᴄᴄᴏᴜɴᴛ ʜᴀs ʙᴇᴇɴ ʀᴇᴍᴏᴠᴇᴅ ᴛᴏ ᴏᴜʀ ᴘʀᴇᴍɪᴜᴍ ᴘʟᴀɴ\n\nᴄʜᴇᴄᴋ ʏᴏᴜʀ ᴘʟᴀɴ ʜᴇʀᴇ /myplan</b>")
         else:
-            await message.reply_text("ᴜɴᴀʙʟᴇ ᴛᴏ ʀᴇᴍᴏᴠᴇ ᴘʀᴇᴍɪᴜᴍ ᴜꜱᴇʀ !\nᴀʀᴇ ʏᴏᴜ ꜱᴜʀᴇ, ɪᴛ ᴡᴀꜱ ᴀ ᴘʀᴇᴍɪᴜᴍ ᴜꜱᴇʀ ɪᴅ ?")
+            await message.reply_text("ᴜɴᴀʙʟᴇ ᴛᴏ ʀᴇᴍᴏᴠᴇ ᴘʀᴇᴍɪᴜᴍ ᴜꜱᴇʀ !\nᴀʀᴇ ʏᴏᴜ ꜱᴜʀᴇ, ɪᴛ ᴡᴀꜱ ᴀ ᴘʀᴇᴍɪᴜᴍ ᴜꜱᴇʀ ɪᴅ ?", quote=True)
     else:
-        await message.reply_text("ᴜꜱᴀɢᴇ : /remove_premium ᴜꜱᴇʀ ɪᴅ")
+        await message.reply_text("ᴜꜱᴀɢᴇ : /remove_premium ᴜꜱᴇʀ ɪᴅ", quote=True)
 
 
 # Restart to cancell all process 
@@ -133,8 +217,7 @@ async def ban(c: Client, m: Message):
         ban_reason = ' '.join(m.command[3:])
         ban_log_text = f"Banning user {user_id} for {ban_duration} days for the reason {ban_reason}."
         try:
-            await c.send_message(
-                user_id,
+            await c.send_message(user_id,              
                 f"You are banned to use this bot for **{ban_duration}** day(s) for the reason __{ban_reason}__ \n\n"
                 f"**Message from the admin**"
             )
@@ -144,11 +227,7 @@ async def ban(c: Client, m: Message):
             ban_log_text += f"\n\nUser notification failed! \n\n`{traceback.format_exc()}`"
 
         await digital_botz.ban_user(user_id, ban_duration, ban_reason)
-        print(ban_log_text)
-        await m.reply_text(
-            ban_log_text,
-            quote=True
-        )
+        await m.reply_text(ban_log_text, quote=True)
     except:
         traceback.print_exc()
         await m.reply_text(
@@ -173,20 +252,13 @@ async def unban(c: Client, m: Message):
         user_id = int(m.command[1])
         unban_log_text = f"Unbanning user {user_id}"
         try:
-            await c.send_message(
-                user_id,
-                f"Your ban was lifted!"
-            )
+            await c.send_message(user_id, f"Your ban was lifted!")
             unban_log_text += '\n\nUser notified successfully!'
         except:
             traceback.print_exc()
             unban_log_text += f"\n\nUser notification failed! \n\n`{traceback.format_exc()}`"
         await digital_botz.remove_ban(user_id)
-        print(unban_log_text)
-        await m.reply_text(
-            unban_log_text,
-            quote=True
-        )
+        await m.reply_text(unban_log_text, quote=True)
     except:
         traceback.print_exc()
         await m.reply_text(
@@ -200,7 +272,6 @@ async def _banned_users(_, m: Message):
     all_banned_users = await digital_botz.get_all_banned_users()
     banned_usr_count = 0
     text = ''
-
     async for banned_user in all_banned_users:
         user_id = banned_user['id']
         ban_duration = banned_user['ban_status']['ban_duration']
@@ -217,7 +288,8 @@ async def _banned_users(_, m: Message):
         os.remove('banned-users.txt')
         return
     await m.reply_text(reply_text, True)
- 
+
+     
 @Client.on_message(filters.command("broadcast") & filters.user(Config.ADMIN) & filters.reply)
 async def broadcast_handler(bot: Client, m: Message):
     await bot.send_message(Config.LOG_CHANNEL, f"{m.from_user.mention} or {m.from_user.id} Iꜱ ꜱᴛᴀʀᴛᴇᴅ ᴛʜᴇ Bʀᴏᴀᴅᴄᴀꜱᴛ......")
@@ -266,5 +338,5 @@ async def send_msg(user_id, message):
 
 # Rkn Developer 
 # Don't Remove Credit 😔
-# Telegram Channel @RknDeveloper & @Rkn_Bots
+# Telegram Channel @RknDeveloper & @Rkn_Botz
 # Developer @RknDeveloperr
