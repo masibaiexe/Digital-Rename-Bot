@@ -39,7 +39,7 @@ class Config(object):
     BOT_TOKEN = os.environ.get("BOT_TOKEN", "7437608465:AAGZ2XOQnLb2_bCsJ9t6IXGuL72mAzbtJZ0") 
 
     # premium account string session required 😢 
-    STRING_SESSION = os.environ.get("STRING_SESSION", "")
+    STRING_SESSION = os.environ.get("STRING_SESSION", "BAHEJbgATpeI3nWy4CcMOQ39HMma3MXCb9ikCSYisbAtw_9jQs1e0k3otW5WUaVJCuagYvRQ2CEP2oo44B8mp9jcg8ewmcuazICaMD7xwdmbhCeezzHr9jDV4w97lHzq9v0w3KoOu4yGWWFq-kF-WWwT2nibBBcoJmD7nLBmg6ZmVixM_3CDNaQ68JttyxJ-3MNYyrhY536sngVRLyA-_GrBeYTYV0Z3oGB_LAkZyb6SmvatY3zKslC0RJtfxb0FfxgxMrV4Gmphk9qsDLfLSIVKjPc8uVL7ofYXef1hSUFHH9nKiD3MTLfLvlBAgz7QaHWRI2E2sm3t6hO18QlOqM-PDIb_vAAAAAF4lxfiAA")
     
     # database config
     DB_NAME = os.environ.get("DB_NAME","ubot")     
