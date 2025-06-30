@@ -36,10 +36,10 @@ class Config(object):
     # digital_botz client config
     API_ID = os.environ.get("API_ID", "29631928")
     API_HASH = os.environ.get("API_HASH", "fec95fcf955a830b48b83f22e5c06e53")
-    BOT_TOKEN = os.environ.get("BOT_TOKEN", "7437608465:AAGZ2XOQnLb2_bCsJ9t6IXGuL72mAzbtJZ0") 
+    BOT_TOKEN = os.environ.get("BOT_TOKEN", "7701016482:AAGJskmEtedB7UfnMF1XbzHRGmJ6ZAp6EBU") 
 
     # premium account string session required 😢 
-    STRING_SESSION = os.environ.get("STRING_SESSION", "BAHEJbgATpeI3nWy4CcMOQ39HMma3MXCb9ikCSYisbAtw_9jQs1e0k3otW5WUaVJCuagYvRQ2CEP2oo44B8mp9jcg8ewmcuazICaMD7xwdmbhCeezzHr9jDV4w97lHzq9v0w3KoOu4yGWWFq-kF-WWwT2nibBBcoJmD7nLBmg6ZmVixM_3CDNaQ68JttyxJ-3MNYyrhY536sngVRLyA-_GrBeYTYV0Z3oGB_LAkZyb6SmvatY3zKslC0RJtfxb0FfxgxMrV4Gmphk9qsDLfLSIVKjPc8uVL7ofYXef1hSUFHH9nKiD3MTLfLvlBAgz7QaHWRI2E2sm3t6hO18QlOqM-PDIb_vAAAAAF4lxfiAA")
+    STRING_SESSION = os.environ.get("STRING_SESSION", "BAHEJbgAD4q1s2wzRzNwNEvK1uFOWWp-Bjnjs1npeUAJdDmDCUcHrC_h3_gFKVuFazoOzSMKB-SSaHJia6vG-isgADLPh0d5s83GcqR9M0Mz6NZG3T0MnRI6g43n6332Tp8GM8cd4lhRKJTY7BXJdpZYR1fM4ocGe2WBPOajnzvTZl5Q9eGWQo4_asWbbgBqMmqvH9LFY-V0OitgQOYKVpTuMu22IdqsgqeRElGIyeIQjavCMuol_Kb4oes5pebICsX10Srt7KyFGX2WWJLeRhDHZ6GOUjwxoe--vtFQryrnuflRMMqLyoIsxT8ATjTBHdb0oUtwj2Wh7Wq298xssIxcpmGHFAAAAAF4lxfiAA")
     
     # database config
     DB_NAME = os.environ.get("DB_NAME","ubot")     
